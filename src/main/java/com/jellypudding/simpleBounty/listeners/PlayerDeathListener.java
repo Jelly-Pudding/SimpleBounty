@@ -40,8 +40,9 @@ public class PlayerDeathListener implements Listener {
         List<Bounty> claimedBounties = new ArrayList<>();
         for (Bounty b : bounties) {
             if (!allowSelfClaim && b.getPlacerUuid().equals(killer.getUniqueId())) continue;
-            manager.claimBounty(b, killer);
-            claimedBounties.add(b);
+            if (manager.claimBounty(b, killer)) {
+                claimedBounties.add(b);
+            }
         }
         if (!claimedBounties.isEmpty()) {
             manager.announceClaims(claimedBounties, killer);

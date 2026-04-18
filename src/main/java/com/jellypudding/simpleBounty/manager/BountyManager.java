@@ -207,17 +207,18 @@ public class BountyManager {
         return false;
     }
 
-    public void claimBounty(Bounty bounty, Player killer) {
-        if (bounty == null || !activeById.containsKey(bounty.getId())) return;
+    public boolean claimBounty(Bounty bounty, Player killer) {
+        if (bounty == null || !activeById.containsKey(bounty.getId())) return false;
 
         List<ItemStack> items = new ArrayList<>(bounty.getItems());
 
         boolean persisted = db.resolveBountyAtomic(bounty.getId(), killer.getUniqueId(), items, "claim");
         if (!persisted) {
             killer.sendMessage(MessageUtil.error("Could not finalise the bounty claim right now. Please try again."));
-            return;
+            return false;
         }
         deindexBounty(bounty);
+        return true;
     }
 
     public void extendBounty(Bounty bounty, long extraMillis) {
