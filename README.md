@@ -60,7 +60,7 @@ Revoke `simplebounty.command.bounty.place` from any group you do not want placin
 
 # Default expiration time for a bounty in hours.
 # After this time, the bounty is cancelled and items are returned to the placer.
-default-expiration-hours: 168
+default-expiration-hours: 8760
 
 # Maximum number of active bounties a single player may have placed at once.
 max-active-bounties-per-placer: 10
@@ -113,7 +113,7 @@ drop-on-full-inventory: false
 
 | Key | Default | Description |
 |---|---|---|
-| `default-expiration-hours` | `168` | Hours before a bounty automatically expires and items are returned. |
+| `default-expiration-hours` | `8760` | Hours before a bounty automatically expires and items are returned. Defaults to one year (365 days). |
 | `max-active-bounties-per-placer` | `10` | Maximum bounties a single placer may have active at once. |
 | `placement-rate-limit.enabled` | `true` | Enable the rolling-window placement rate limit. |
 | `placement-rate-limit.max-placements` | `20` | Max placements allowed inside the window. |

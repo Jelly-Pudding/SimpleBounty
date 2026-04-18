@@ -2,7 +2,8 @@
 
 # Default expiration time for a bounty in hours.
 # After this time, the bounty is cancelled and items are returned to the placer.
-default-expiration-hours: 168
+# 8760 hours = 365 days = 1 year.
+default-expiration-hours: 8760
 
 # Maximum number of active bounties a single player may have placed at once.
 max-active-bounties-per-placer: 10

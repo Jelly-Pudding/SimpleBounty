@@ -42,8 +42,30 @@ public class BountyGuiListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         switch (bh.getType()) {
             case LIST, ON_ME, MINE -> handleListClick(event, bh, player);
-            case DETAIL -> event.setCancelled(true);
+            case DETAIL -> handleDetailClick(event, bh, player);
             case PLACE -> handlePlaceClick(event, bh, player);
+        }
+    }
+
+    private void handleDetailClick(InventoryClickEvent event, BountyGuiHolder bh, Player player) {
+        event.setCancelled(true);
+        int slot = event.getRawSlot();
+        if (slot != 0) return;
+        BountyGuiHolder.Type origin = bh.get("origin");
+        if (origin == null) return;
+        int page = bh.getInt("originPage", 0);
+        switch (origin) {
+            case LIST -> {
+                GuiManager.TargetListContext ctx = bh.get("originContext");
+                if (ctx != null) {
+                    plugin.getGuiManager().openBountiesOnTarget(player, ctx.targetUuid(), ctx.targetName(), page);
+                } else {
+                    plugin.getGuiManager().openActiveList(player, page);
+                }
+            }
+            case ON_ME -> plugin.getGuiManager().openTargetedAtMe(player, page);
+            case MINE -> plugin.getGuiManager().openPlacedByMe(player, page);
+            default -> {}
         }
     }
 
@@ -79,7 +101,7 @@ public class BountyGuiListener implements Listener {
             reopenList(bh, player, page + 1);
             return;
         }
-        if (slot == 48) {
+        if (slot == 49) {
             player.closeInventory();
             return;
         }
@@ -106,7 +128,8 @@ public class BountyGuiListener implements Listener {
                     return;
                 }
             }
-            plugin.getGuiManager().openDetail(player, bountyId);
+            GuiManager.TargetListContext originContext = bh.get("targetContext");
+            plugin.getGuiManager().openDetail(player, bountyId, bh.getType(), originContext, page);
         }
     }
 
@@ -205,7 +228,7 @@ public class BountyGuiListener implements Listener {
             return;
         }
 
-        long durationMs = plugin.getConfig().getLong("default-expiration-hours", 168) * 3600_000L;
+        long durationMs = plugin.getConfig().getLong("default-expiration-hours", 8760) * 3600_000L;
 
         bh.set("confirmed", true);
 

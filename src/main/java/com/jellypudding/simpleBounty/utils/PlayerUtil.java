@@ -67,11 +67,6 @@ public class PlayerUtil {
     }
 
     public static Component getPlayerDisplayName(String playerName, UUID playerUuid) {
-        Player onlinePlayer = Bukkit.getPlayerExact(playerName);
-        if (onlinePlayer != null) {
-            return onlinePlayer.displayName();
-        }
-
         TextColor colour = lookupChromaTagColour(playerUuid);
         if (colour != null) {
             return Component.text(playerName, colour);

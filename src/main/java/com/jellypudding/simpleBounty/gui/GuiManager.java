@@ -32,27 +32,30 @@ public class GuiManager {
 
     public void openActiveList(Player viewer, int page) {
         openList(viewer, plugin.getBountyManager().getAllActive(), page,
-                BountyGuiHolder.Type.LIST, "Active Bounties");
+                BountyGuiHolder.Type.LIST, "Active Bounties", null);
     }
 
     public void openTargetedAtMe(Player viewer, int page) {
         openList(viewer, plugin.getBountyManager().getActiveForTarget(viewer.getUniqueId()), page,
-                BountyGuiHolder.Type.ON_ME, "Bounties On You");
+                BountyGuiHolder.Type.ON_ME, "Bounties On You", null);
     }
 
     public void openPlacedByMe(Player viewer, int page) {
         openList(viewer, plugin.getBountyManager().getActiveByPlacer(viewer.getUniqueId()), page,
-                BountyGuiHolder.Type.MINE, "Your Placed Bounties");
+                BountyGuiHolder.Type.MINE, "Your Placed Bounties", null);
     }
 
     public void openBountiesOnTarget(Player viewer, UUID targetUuid, String targetName, int page) {
         List<Bounty> bounties = plugin.getBountyManager().getActiveForTarget(targetUuid);
         openList(viewer, bounties, page, BountyGuiHolder.Type.LIST,
-                "Bounties on " + targetName);
+                "Bounties on " + targetName, new TargetListContext(targetUuid, targetName));
     }
 
+    public record TargetListContext(UUID targetUuid, String targetName) {}
+
     private void openList(Player viewer, Collection<Bounty> source, int page,
-                          BountyGuiHolder.Type type, String titleText) {
+                          BountyGuiHolder.Type type, String titleText,
+                          TargetListContext targetContext) {
         List<Bounty> list = new ArrayList<>(source);
         list.sort(Comparator
                 .comparingInt((Bounty b) -> -b.getTotalItemCount())
@@ -64,6 +67,9 @@ public class GuiManager {
         BountyGuiHolder holder = new BountyGuiHolder(type);
         holder.set("page", page);
         holder.set("totalPages", totalPages);
+        if (targetContext != null) {
+            holder.set("targetContext", targetContext);
+        }
 
         Component title = Component.text(titleText, NamedTextColor.GOLD, TextDecoration.BOLD)
                 .append(Component.text(" (" + (page + 1) + "/" + totalPages + ")", NamedTextColor.GRAY));
@@ -89,10 +95,10 @@ public class GuiManager {
         if (page < totalPages - 1) inv.setItem(53, GuiItems.nextPage());
 
         ItemStack info = GuiItems.infoBook("Bounties: " + list.size(),
-                "Left-click a head to view full reward details.",
+                "Left-click a head for reward details.",
                 type == BountyGuiHolder.Type.MINE ? "Shift-click a head to cancel that bounty." : "");
-        inv.setItem(49, info);
-        inv.setItem(48, GuiItems.close());
+        inv.setItem(47, info);
+        inv.setItem(49, GuiItems.close());
 
         viewer.openInventory(inv);
     }
@@ -117,6 +123,11 @@ public class GuiManager {
     }
 
     public void openDetail(Player viewer, long bountyId) {
+        openDetail(viewer, bountyId, null, null, 0);
+    }
+
+    public void openDetail(Player viewer, long bountyId, BountyGuiHolder.Type origin,
+                           TargetListContext originContext, int originPage) {
         Bounty b = plugin.getBountyManager().getActive(bountyId);
         if (b == null) {
             viewer.sendMessage(MessageUtil.error("That bounty is no longer active."));
@@ -124,6 +135,13 @@ public class GuiManager {
         }
         BountyGuiHolder holder = new BountyGuiHolder(BountyGuiHolder.Type.DETAIL);
         holder.set("bountyId", bountyId);
+        if (origin != null) {
+            holder.set("origin", origin);
+            holder.set("originPage", originPage);
+        }
+        if (originContext != null) {
+            holder.set("originContext", originContext);
+        }
 
         Component title = Component.text("Bounty #" + b.getId() + " - ", NamedTextColor.GOLD)
                 .append(Component.text(b.getTargetName(), NamedTextColor.RED));
@@ -145,6 +163,10 @@ public class GuiManager {
 
         for (int s = 0; s < 9; s++) {
             if (s != 4) inv.setItem(s, GuiItems.filler());
+        }
+
+        if (origin != null) {
+            inv.setItem(0, GuiItems.back());
         }
 
         List<ItemStack> items = b.getItems();
@@ -175,12 +197,11 @@ public class GuiManager {
         inv.setItem(45, buildPlaceInfoHead(targetUuid, targetName));
         for (int s = 46; s < 54; s++) inv.setItem(s, GuiItems.filler());
 
-        long hours = plugin.getConfig().getLong("default-expiration-hours", 168);
-        String hoursLabel = hours == 1 ? "hour" : "hours";
+        long hours = plugin.getConfig().getLong("default-expiration-hours", 8760);
+        String durationLabel = MessageUtil.formatDuration(hours * 3600_000L);
         inv.setItem(48, GuiItems.button(Material.CLOCK, "Duration", NamedTextColor.YELLOW,
-                "This bounty will expire in " + hours + " " + hoursLabel,
-                "if not claimed. Items will be returned",
-                "to you automatically."));
+                "This bounty will expire in " + durationLabel + ".",
+                "Items will be returned to you automatically."));
 
         inv.setItem(50, GuiItems.confirm());
         inv.setItem(53, GuiItems.cancel());
