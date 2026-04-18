@@ -94,11 +94,13 @@ public class BountyGuiListener implements Listener {
                     Bounty b = plugin.getBountyManager().getActive(bountyId);
                     if (b != null && b.getPlacerUuid().equals(player.getUniqueId())) {
                         Component targetName = PlayerUtil.getPlayerDisplayName(b.getTargetName(), b.getTargetUuid());
-                        plugin.getBountyManager().cancelBounty(b, "cancelled");
-                        player.sendMessage(MessageUtil.prefix()
-                                .append(Component.text("Bounty #" + bountyId + " on ", NamedTextColor.GREEN))
-                                .append(targetName)
-                                .append(Component.text(" was cancelled.", NamedTextColor.GREEN)));
+                        if (plugin.getBountyManager().cancelBounty(b, "cancelled")) {
+                            player.sendMessage(MessageUtil.prefix()
+                                    .append(Component.text("Bounty #" + bountyId + " on ", NamedTextColor.GREEN))
+                                    .append(targetName)
+                                    .append(Component.text(" was cancelled.", NamedTextColor.GREEN)));
+                            plugin.getBountyManager().deliverPendingReturns(player, "bounty items (cancelled)");
+                        }
                         reopenList(bh, player, page);
                     }
                     return;

@@ -6,7 +6,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class ExpirationManager {
 
@@ -42,8 +45,14 @@ public class ExpirationManager {
         for (Bounty b : manager.getAllActive()) {
             if (b.isExpired()) expired.add(b);
         }
+        Set<UUID> placersToNotify = new HashSet<>();
         for (Bounty b : expired) {
-            manager.expireBounty(b);
+            if (manager.expireBounty(b)) {
+                placersToNotify.add(b.getPlacerUuid());
+            }
+        }
+        for (UUID placerUuid : placersToNotify) {
+            manager.deliverPendingReturnsIfOnline(placerUuid, "bounty items (expired)");
         }
     }
 }

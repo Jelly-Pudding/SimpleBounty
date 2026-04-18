@@ -198,11 +198,13 @@ public class BountyManager {
         return resolveForPlacer(bounty, reason);
     }
 
-    public void expireBounty(Bounty bounty) {
-        if (bounty == null || !activeById.containsKey(bounty.getId())) return;
+    public boolean expireBounty(Bounty bounty) {
+        if (bounty == null || !activeById.containsKey(bounty.getId())) return false;
         if (resolveForPlacer(bounty, "expired")) {
             announceExpiration(bounty);
+            return true;
         }
+        return false;
     }
 
     public void claimBounty(Bounty bounty, Player killer) {
@@ -216,8 +218,6 @@ public class BountyManager {
             return;
         }
         deindexBounty(bounty);
-
-        deliverPendingReturns(killer, "claimed bounty items");
     }
 
     public void extendBounty(Bounty bounty, long extraMillis) {
@@ -240,15 +240,13 @@ public class BountyManager {
             return false;
         }
         deindexBounty(bounty);
-
-        Player placer = Bukkit.getPlayer(bounty.getPlacerUuid());
-        if (placer != null && placer.isOnline()) {
-            int delivered = deliverPendingReturns(placer, "bounty items (" + reason + ")");
-            if (delivered <= 0) {
-                placer.sendMessage(MessageUtil.info("Your bounty items (" + reason + ") are saved. Use /bounty claimreturns to collect them."));
-            }
-        }
         return true;
+    }
+
+    public int deliverPendingReturnsIfOnline(UUID playerUuid, String label) {
+        Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null || !player.isOnline()) return 0;
+        return deliverPendingReturns(player, label);
     }
 
     public int deliverPendingReturns(Player player, String label) {
@@ -274,8 +272,6 @@ public class BountyManager {
         }
         return pending.size() - leftovers.size();
     }
-
-    /* ------------------ Announcements ------------------ */
 
     private void announcePlacement(Bounty bounty) {
         if (plugin.getConfig().getBoolean("announce-placement", true)) {

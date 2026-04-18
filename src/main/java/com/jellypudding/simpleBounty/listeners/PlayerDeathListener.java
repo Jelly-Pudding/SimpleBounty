@@ -45,6 +45,7 @@ public class PlayerDeathListener implements Listener {
         }
         if (!claimedBounties.isEmpty()) {
             manager.announceClaims(claimedBounties, killer);
+            manager.deliverPendingReturns(killer, "claimed bounty items");
             Component victimName = PlayerUtil.getPlayerDisplayName(victim.getName(), victim.getUniqueId());
             killer.sendMessage(MessageUtil.prefix()
                     .append(Component.text("You claimed ", NamedTextColor.GREEN))

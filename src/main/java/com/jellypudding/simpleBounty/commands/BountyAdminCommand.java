@@ -15,7 +15,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -80,11 +82,14 @@ public class BountyAdminCommand implements CommandExecutor, TabCompleter {
             return;
         }
         Component placerDisplay = PlayerUtil.getPlayerDisplayName(b.getPlacerName(), b.getPlacerUuid());
-        plugin.getBountyManager().cancelBounty(b, "admin cancel");
-        sender.sendMessage(MessageUtil.prefix()
-                .append(Component.text("Bounty #" + id + " cancelled. Items returned to ", NamedTextColor.GREEN))
-                .append(placerDisplay)
-                .append(Component.text(".", NamedTextColor.GREEN)));
+        UUID placerUuid = b.getPlacerUuid();
+        if (plugin.getBountyManager().cancelBounty(b, "admin cancel")) {
+            plugin.getBountyManager().deliverPendingReturnsIfOnline(placerUuid, "bounty items (cancelled)");
+            sender.sendMessage(MessageUtil.prefix()
+                    .append(Component.text("Bounty #" + id + " cancelled. Items returned to ", NamedTextColor.GREEN))
+                    .append(placerDisplay)
+                    .append(Component.text(".", NamedTextColor.GREEN)));
+        }
     }
 
     private void handleCancelAll(CommandSender sender, String[] args) {
@@ -102,8 +107,14 @@ public class BountyAdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(MessageUtil.info("No active bounties on that player."));
             return;
         }
+        Set<UUID> placersToNotify = new HashSet<>();
         for (Bounty b : bounties) {
-            plugin.getBountyManager().cancelBounty(b, "admin cancel");
+            if (plugin.getBountyManager().cancelBounty(b, "admin cancel")) {
+                placersToNotify.add(b.getPlacerUuid());
+            }
+        }
+        for (UUID placerUuid : placersToNotify) {
+            plugin.getBountyManager().deliverPendingReturnsIfOnline(placerUuid, "bounty items (cancelled)");
         }
         Component targetDisplay = PlayerUtil.getPlayerDisplayName(PlayerUtil.getExactPlayerName(args[1]), targetUuid);
         sender.sendMessage(MessageUtil.prefix()
@@ -130,8 +141,12 @@ public class BountyAdminCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(MessageUtil.info("That player has no active bounties."));
             return;
         }
+        int cancelled = 0;
         for (Bounty b : bounties) {
-            plugin.getBountyManager().cancelBounty(b, "admin cancel");
+            if (plugin.getBountyManager().cancelBounty(b, "admin cancel")) cancelled++;
+        }
+        if (cancelled > 0) {
+            plugin.getBountyManager().deliverPendingReturnsIfOnline(placerUuid, "bounty items (cancelled)");
         }
         Component placerDisplay = PlayerUtil.getPlayerDisplayName(PlayerUtil.getExactPlayerName(args[1]), placerUuid);
         sender.sendMessage(MessageUtil.prefix()

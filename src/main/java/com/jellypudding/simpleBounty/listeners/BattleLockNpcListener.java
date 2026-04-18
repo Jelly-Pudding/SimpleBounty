@@ -71,6 +71,7 @@ public class BattleLockNpcListener implements Listener {
 
         if (!claimedBounties.isEmpty()) {
             manager.announceClaims(claimedBounties, killer);
+            manager.deliverPendingReturns(killer, "claimed bounty items");
             String loggerName = PlayerUtil.getNameFromUUID(combatLoggerUuid);
             Component loggerDisplayName = PlayerUtil.getPlayerDisplayName(loggerName, combatLoggerUuid);
             killer.sendMessage(MessageUtil.prefix()

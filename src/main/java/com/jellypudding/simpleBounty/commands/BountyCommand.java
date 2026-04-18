@@ -140,11 +140,13 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         Component targetDisplay = PlayerUtil.getPlayerDisplayName(b.getTargetName(), b.getTargetUuid());
-        plugin.getBountyManager().cancelBounty(b, "cancelled");
-        player.sendMessage(MessageUtil.prefix()
-                .append(Component.text("Bounty #" + id + " on ", NamedTextColor.GREEN))
-                .append(targetDisplay)
-                .append(Component.text(" was cancelled.", NamedTextColor.GREEN)));
+        if (plugin.getBountyManager().cancelBounty(b, "cancelled")) {
+            player.sendMessage(MessageUtil.prefix()
+                    .append(Component.text("Bounty #" + id + " on ", NamedTextColor.GREEN))
+                    .append(targetDisplay)
+                    .append(Component.text(" was cancelled.", NamedTextColor.GREEN)));
+            plugin.getBountyManager().deliverPendingReturns(player, "bounty items (cancelled)");
+        }
     }
 
     private void handleClaimReturns(Player player) {
