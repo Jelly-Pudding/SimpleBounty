@@ -1,0 +1,33 @@
+name: SimpleBounty
+version: '${version}'
+main: com.jellypudding.simpleBounty.SimpleBounty
+api-version: '1.21'
+description: "Place bounties on players in exchange for items."
+author: AlphaAlex115
+website: www.minecraftoffline.net
+softdepend: [DiscordRelay, ChromaTag]
+
+commands:
+  bounty:
+    description: Open the bounty menu or manage your bounties.
+    usage: /bounty <list|place|view|mine|me|cancel|claimreturns>
+    permission: simplebounty.command.bounty
+    permission-message: You lack permission to use this command.
+    aliases: [bounties]
+  bountyadmin:
+    description: Administrative commands for SimpleBounty.
+    usage: /bountyadmin <reload|list|info|cancel|cancelall|clearplacer|extend>
+    permission: simplebounty.command.admin
+    permission-message: You lack permission to use this command.
+    aliases: [bountya, sba]
+
+permissions:
+  simplebounty.command.bounty:
+    description: Allows using the /bounty command and its subcommands.
+    default: true
+  simplebounty.command.bounty.place:
+    description: Allows placing bounties via /bounty place.
+    default: true
+  simplebounty.command.admin:
+    description: Allows using the /bountyadmin command.
+    default: op

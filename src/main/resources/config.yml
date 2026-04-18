@@ -1,0 +1,53 @@
+# SimpleBounty Configuration
+
+# Default expiration time for a bounty in hours.
+# After this time, the bounty is cancelled and items are returned to the placer.
+default-expiration-hours: 168
+
+# Maximum number of active bounties a single player may have placed at once.
+max-active-bounties-per-placer: 10
+
+# Rate limit on how many bounties a single player may PLACE in a rolling time window.
+# This prevents spam from repeatedly placing and cancelling to keep chat churning.
+# Counts are kept in memory and reset on server restart.
+# Set placement-rate-limit.enabled to false to disable entirely.
+placement-rate-limit:
+  enabled: true
+  max-placements: 20
+  window-minutes: 60
+
+# Maximum number of item stacks that can be included in a single bounty.
+# The placement GUI has 45 item slots so this cannot exceed 45.
+max-items-per-bounty: 45
+
+# If true, placing a bounty on yourself is allowed.
+allow-self-bounty: false
+
+# If true, the placer of a bounty can also claim it (by killing the target themselves).
+# Set to false to prevent wash-trading - a player putting a bounty on a friend and
+# having that friend let them be killed so the placer "claims" their own reward.
+allow-placer-self-claim: true
+
+# How often (in seconds) the expiration checker runs.
+expiration-check-interval-seconds: 60
+
+# If true, broadcast a chat message when a bounty is placed.
+announce-placement: true
+
+# If true, broadcast a chat message when a bounty is claimed.
+announce-claim: true
+
+# If true, broadcast a chat message when a bounty expires and items are returned.
+announce-expiration: false
+
+# Discord announcements via DiscordRelay (if installed).
+discord:
+  enabled: true
+  announce-placement: true
+  announce-claim: true
+  announce-expiration: false
+
+# When a player's inventory is full on claim or return, drop overflow items at their feet.
+# If false, items are saved in the pending-returns table for later collection
+# with /bounty claimreturns.
+drop-on-full-inventory: false
