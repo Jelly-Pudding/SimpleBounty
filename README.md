@@ -1,6 +1,6 @@
 # SimpleBounty Plugin
 
-**SimpleBounty** is a Paper 1.21.11 plugin that lets players put up item bounties on other players. Although it was custom built for [minecraftoffline.net](https://www.minecraftoffline.net), it can be used by any server.
+**SimpleBounty** is a Paper 26.1.2 plugin that lets players put up item bounties on other players. Although it was custom built for [minecraftoffline.net](https://www.minecraftoffline.net), it can be used by any server.
 
 ## Features
 - **Item Bounties**: Place any items (including enchanted, damaged or NBT-heavy) as the reward for eliminating a player. Durability, enchantments and all item data are preserved.
