@@ -24,11 +24,7 @@ public final class MessageUtil {
     private MessageUtil() {}
 
     public static Component prefix() {
-        return Component.text()
-                .append(Component.text("[", NamedTextColor.DARK_GRAY))
-                .append(Component.text("Bounty", ACCENT, TextDecoration.BOLD))
-                .append(Component.text("] ", NamedTextColor.DARK_GRAY))
-                .build();
+        return Component.empty();
     }
 
     public static Component error(String msg) {
