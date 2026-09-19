@@ -1,7 +1,7 @@
 name: SimpleBounty
 version: '${version}'
 main: com.jellypudding.simpleBounty.SimpleBounty
-api-version: '26.2'
+api-version: '26.3'
 description: "Place bounties on players in exchange for items."
 author: AlphaAlex115
 website: www.minecraftoffline.net
